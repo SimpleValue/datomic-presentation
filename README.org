@@ -152,16 +152,19 @@ tuples/dicts/objects. Those dicts can have other dicts as values,
 because entities can point to each other. 
 
 Raw Datom format (not showing time — transaction IDs):
+#+BEGIN_SRC clojure
 [101 :person/first-name "Alice"]
 [101 :person/parent     102]
 [102 :person/first-name "Bob"]
+#+END_SRC
 
 Entity format:
+#+BEGIN_SRC clojure
 {:db/id 101,
  :person/first-name "Alice",
  :person/parent {:db/id 102,
                  :person/first-name "Bob"}}
-
+#+END_SRC
 
 Navigate backwards via the :person/_parent attribute. 
 
