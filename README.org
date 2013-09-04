@@ -1,4 +1,3 @@
-;; -*- mode: org -*-
 #+DRAWERS: CODE INSTALL
 
 * Memory
