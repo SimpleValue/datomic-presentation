@@ -1,0 +1,293 @@
+;; -*- mode: org -*-
+#+DRAWERS: CODE INSTALL
+
+* Memory
+
+Old model:
+You have something in a box. Then you erase what's in that box forever.
+
+Imagine if your brain worked that way — everytime you learn something,
+like a new email address, you had to forget the last email address you
+had. What would your life be like — what would being human be like —
+if that's how you learned?
+
+"Memory" is what humans have. The term applied to computers is a
+recent analogy. Since storage was costly, we had to recycle it, like
+medieval scribes who erased intensely interesting ancient documents
+because paper was expensive.
+
+But now we have big data, where companies are afraid to delete logs,
+just in case they figure out how to mine for gold it years later.
+
+What superpowers do you gain with an actual memory of past events?
+
+- Go back in time to earlier DB state.
+
+- If you can go back in time, you can also go forward to possivle
+  futures. You can add hypothetical facts to your DB, for what-if
+  calculations, which could be great for analytics.
+
+- You can join across different snapshots of the DB.
+
+- Many times people do have SQL tables which store full history of all
+  changes. In my experience that's painful to work with. This is much
+  faster and simpler.
+
+- Debug bad data more easily. Imagine doing something like git bisect,
+  figuring out the exact moment something went wrong. In most systems,
+  "blips" may happen where things go wrong... then magically fix
+  themselves. Virtually impossible to investigate, because the data's
+  gone.
+
+- Programmers use it for themselves. Git, logs, ... But they don't
+  share it with their customers.
+
+- When you remember transactions, you can add metadata to each
+  transaction. By default, each transaction remembers the system time
+  of the transaction. But you can also add the source of the data, the
+  probability it's reliable, etc. This helps debugging; you can
+  discover that there was something wrong with one of your servers
+  last week, which collected the data. Imagine if you got a bugreport
+  like that with a traditional DB.
+
+
+* Immutability
+
+Closely related to memory is immutability. The Datomic database is
+immutable; it grows but doesn't change. When you have a reference to a
+database, you're holding an immutable snapshot of the Datomic
+database. You can get a newer or older snapshot if you wish; the
+snapshot you're holding doesn't change in your hands.
+
+Going back to memory, you remember facts. If some turn out to be wrong
+(like your email address had a typo), you remember it being retracted,
+and learning the real email address.
+
+So you don't need to coordinate mutated copies, where if one changes,
+the rest must change too. It's like a number or immutable string.
+
+Superpowers:
+
+- Extreme caching. Infinitely replication. You can have it scale
+  across different kinds of machines, like you can have a memcached
+  cluster, a big-bad analytics machine with big CPUs, a cache on your
+  local machine, etc.
+  
+  So you can have a cache on your local machine, which pulls from a
+  memcached cluster, which pulls from a storage backend like Riak
+  cluster, a SQL database like PostgreSQL, DynamoDB table, Couchbase
+  cluster, Infinispan memory cluster, etc.
+
+  You can do this even with normal DBs. I once had an emergency which
+  I can't talk about any details, but the company needed me to derive
+  data from a MySQL reports table. I locked myself in a room for a few
+  days, and quickly realized it would take my laptop months to
+  calculate. Fortunately, I could replicate immutable shards of the
+  MySQL table across dozens of AWS machines, with hundreds of
+  processes pounding away at it... in a sort of ghetto MapReduce
+  style.
+  
+  When that same company continued to waste huge amounts of time with
+  traumatic monthly analytics batch computations on those same tables,
+  where everyone was told not to disturb the MySQL machine, it made no
+  sense to me. I thought it was a solved problem. They looked to
+  Hadoop, but they should've stopped reading Hacker News and
+  Techcrunch, because you typically don't need Big Data
+  solutions. This says something bad about the programming profession.
+
+- Useful with other NoSQL DBs. For example, your Riak reads are fast
+  as possible, if Riak nodes don't need to agree on the current
+  value. As long as one node has it, it's the value you're looking
+  for.
+
+- Faster transactions. Michael Stonebraker (developed Postgres/Ingres,
+  and recently founded a number of DBs like VoltDB) mentioned [1] that a
+  lot of performance problems with DBs involves multithreaded
+  programming overhead — how you need to lock/latch things in the face
+  of concurrent modification. 
+
+  Fortunately, when you radically reduce the need to lock things —
+  Datomic has about 5 mutable variables per DB, which are just atomic
+  CAS references — you can greatly speed things up.
+
+  [1] "The "NoSQL" Discussion has Nothing to Do With SQL"
+  http://cacm.acm.org/blogs/blog-cacm/50678-the-nosql-discussion-has-nothing-to-do-with-sql/fulltext
+
+  And it's a lot easier not to have to lock immutable values. You can
+  have a lot of concurrency with multiple CPUs, but they're not
+  stepping all over each other's data. Imagine the speed benefits of
+  not needing to coordinate CPU caches.
+
+- "Accountants don't use erasers or they end up in jail.  When an
+  entry is made in the accounting records, it will live forever.
+  There may be another entry added to ensure that a mistake is
+  corrected but the mistake will not be erased." [2]
+
+  [2] Pat Helland, Microsoft
+  http://blogs.msdn.com/b/pathelland/archive/2007/06/14/accountants-don-t-use-erasers.aspx
+
+  People have been dealing with this for centuries, perhaps millenia.
+
+
+* Facts
+
+A fact is a statement about something at a certain time.
+
+Time is needed, because truths are contingent on time: I liked Nutella
+and ravioli. Then I stopped liking ravioli. Then one day, I liked olives.
+
+A SQL table is a bunch of facts stuck together in a rectangle: this
+chair cost 50 EUR. Its color is blue. Its tax was 18%. You have to fit
+data into rectangles. When you want to add an attribute, like size,
+you might do a painful ALTER TABLE.
+
+But you can split that up. :product/cost is one
+attribute; :product/color is another. Not everything has to have all
+the attributes. You can still do implicit joins, because a database
+entity can refer to another database entity, like a key can refer to
+another key.
+
+And you can still represent these entities in
+tuples/dicts/objects. Those dicts can have other dicts as values,
+because entities can point to each other. 
+
+Raw Datom format (not showing time — transaction IDs):
+[101 :person/first-name "Alice"]
+[101 :person/parent     102]
+[102 :person/first-name "Bob"]
+
+Entity format:
+{:db/id 101,
+ :person/first-name "Alice",
+ :person/parent {:db/id 102,
+                 :person/first-name "Bob"}}
+
+
+Navigate backwards via the :person/_parent attribute. 
+
+Here, unlike ORMs, the conversion between Datoms and entities is
+mechanical. Relationships are lazily navigable. And unlike ORM
+objects, relationships can be travelled in either direction — so you
+can not only get from Alice to her parent Bob, but also from Bob to
+Alice, by navigating backwards through :person/_parent.
+
+
+* Tradeoffs
+
+Any system has tradeoffs. (Noam Chomsky's analogy is that a bird is
+too "strong" at flying to swim like a fish.) Much pain occurs when
+people know only a system's benefits — or negatives, for that
+matter. Like when talking about a programming language, they say it's
+just great. Of course, you want to know its tradeoffs, which means
+both positives and negatives.
+
+One tradeoff is forced by the CAP theorem. Datomic chooses consistent
+writes. But writes are decoupled from reads. And reads are of
+immutable data. You can have as many copies as you want, so no worries
+about read-availability. Adn of course, reads are consistent.
+
+Superpowers:
+
+- Freedom to ignore timeconsuming flamewars about how great something
+  is, and how much the other thing sucks.
+
+- In worst-case network partitions, everyone still has business-case
+  consistent list of transactions. An unbroken chaint of them. Though
+  you may not have the most recent transactions. And you won't be able
+  to write, as writes are consistent and not available.
+
+  Of course, you can have traditional failover hot standby for writes,
+  just as with traditional SQL databases.
+
+
+* Communication
+
+SQL databases are all-knowing god boxes with which you communicate
+over some thin pipe.
+
+It processes queries, transactions, etc.
+
+Modern practice is to separate concerns/responsibilities. We write
+services. There's a read system, and a write system. They offer their
+own features.
+
+In the read system, you have pluggable backend storage. Riak,
+DynamoDB, SQL database, Couchbase, Infinispan, etc. In this way you
+achieve symbiosis. For example, if your admins already support Riak,
+you can piggyback on it. And of course, you gain its reliability.
+
+Another feature of services (as in service-oriented architecture) is
+that they communicate to each others using data. They're not talking
+to each other with some human-interface like SQL, where we're cursed
+with string concatenation.
+
+Rant:
+
+- As I understand, Hadoop's Hive uses a SQL-like syntax for its
+  schema. One Hive system had data corruption; it turned out the
+  schema wasn't in synch with the data. So we generated the schema
+  automatically from example data, generating strings. It was really
+  nasty and fragile; I have a strong suspicion that people who go to
+  the trouble of writing parsers (like SQL parsers) somehow make
+  fragile languages, because it's such effort.
+
+Superpowers:
+
+- Untangling god boxes into simpler components, which communicate with
+  each over with data and simple interfaces, makes it easier to grow
+  your systems, like Lego. Rather than a painful hairball which
+  becomes harder and harder to add features to over time. Composing
+  things is all about growth.
+
+- You can build an interface for humans on a data interface. Much
+  harder to build a data interface on an interface for humans.
+
+
+* Programmability
+
+Problem with MS Windows was a strict separation between userspace and
+programmerspace.
+
+Programmability means you can examine and manipulate the
+environment. Operate on various parts.
+
+Debuggability is important. For example, if you hand datomic a list of
+EAV (optionally T and whether it's an addition or retraction), you can
+query that as your database. Makes unit-test mocking trivial. Easy to
+play with the DB.
+
+That means you can also use the query language (Datalog) on your own
+data, completely separate from Datomic. You can do analytics without
+needing to stuff it into the DB.
+
+You can execute your own functions in queries. You're not limited to
+using built-in database operators. (The only constraint is they
+shouldn't have side-effects.)
+
+You can also execute code on the transactor — the part of the system
+which coordinates writes — when you want to ensure consistency. (So you
+can add 1000 EUR to the absolute current account balance.)
+
+If you don't want to use the query language they offer, you can access
+the underlying index, with just as much power as the query language's
+author had. So, you can scan over it efficiently.
+
+Everything's in a data format, so you're not concatenating strings to
+work with it.
+
+And declarative interfaces lend themselves naturally to a data
+description. You express what you want, and the system takes care of
+the underlying details for you.
+
+;; Count the distinct cities in your DB.
+(q '[:find (count ?c)
+     :where [?_ :person/city ?c]]
+   db)
+
+;; Does user have permission to access document?
+;; (That is, do they belong to the same org?)
+(q '[:find ?d
+     :in $ ?u
+     :where [?u :user/org ?o]
+            [?d :document/org ?o]]
+   db user)
