@@ -208,7 +208,7 @@ Superpowers:
 SQL databases are all-knowing god boxes with which you communicate
 over some thin pipe.
 
-It processes queries, transactions, etc.
+The God Box processes queries, transactions, etc.
 
 Modern practice is to separate concerns/responsibilities. We write
 services. There's a read system, and a write system. They offer their
