@@ -214,7 +214,7 @@ Superpowers:
   just as with traditional SQL databases.
 
 
-* Communication
+* Decomplecting
 
 SQL databases are all-knowing god boxes with which you communicate
 over some thin pipe.
