@@ -99,6 +99,7 @@ Superpowers:
   value. As long as one node has it, it's the value you're looking
   for.
 
+
 - Faster transactions. Michael Stonebraker (developed Postgres/Ingres,
   and recently founded a number of DBs like VoltDB) mentioned [1] that a
   lot of performance problems with DBs involves multithreaded
