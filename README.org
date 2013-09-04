@@ -2,8 +2,8 @@
 
 * Memory
 
-Old model: You have something in a box. When you learn something new
-about a fact, you erase what's in that box forever.
+Old model: You store a fact in a box. When you learn something new
+about it, you erase what's in that box forever.
 
 Imagine if your brain worked that way — everytime you learn something,
 like a new email address, you had to forget the last email address you
