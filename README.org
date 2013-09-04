@@ -282,11 +282,14 @@ And declarative interfaces lend themselves naturally to a data
 description. You express what you want, and the system takes care of
 the underlying details for you.
 
+#+BEGIN_SRC clojure
 ;; Count the distinct cities in your DB.
 (q '[:find (count ?c)
      :where [?_ :person/city ?c]]
    db)
+#+END_SRC
 
+#+BEGIN_SRC clojure
 ;; Does user have permission to access document?
 ;; (That is, do they belong to the same org?)
 (q '[:find ?d
@@ -294,3 +297,4 @@ the underlying details for you.
      :where [?u :user/org ?o]
             [?d :document/org ?o]]
    db user)
+#+END_SRC
