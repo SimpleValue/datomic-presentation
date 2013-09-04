@@ -2,8 +2,8 @@
 
 * Memory
 
-Old model:
-You have something in a box. Then you erase what's in that box forever.
+Old model: You have something in a box. To remember something new, you
+erase what's in that box forever.
 
 Imagine if your brain worked that way — everytime you learn something,
 like a new email address, you had to forget the last email address you
@@ -43,8 +43,8 @@ What superpowers do you gain with an actual memory of past events?
   gone.
 
 
-- Programmers use it for themselves. Git, logs, ... But they don't
-  share it with their customers.
+- Programmers use it themselves, to store their most valuable
+  data. Git, logs... But they don't share it with their customers.
 
 
 - When you remember transactions, you can add metadata to each
@@ -59,17 +59,18 @@ What superpowers do you gain with an actual memory of past events?
 * Immutability
 
 Closely related to memory is immutability. The Datomic database is
-immutable; it grows but doesn't change. When you have a reference to a
-database, you're holding an immutable snapshot of the Datomic
-database. You can get a newer or older snapshot if you wish; the
-snapshot you're holding doesn't change in your hands.
+immutable; it grows but doesn't internally change. When you have a
+reference to a database, you're holding an immutable snapshot of the
+Datomic database. You can get a newer or older snapshot if you wish;
+the snapshot you're holding doesn't change in your hands.
 
 Going back to memory, you remember facts. If some turn out to be wrong
 (like your email address had a typo), you remember it being retracted,
 and learning the real email address.
 
-So you don't need to coordinate mutated copies, where if one changes,
-the rest must change too. It's like a number or immutable string.
+So you don't need the heavy machinery to coordinate mutated copies,
+where if one changes, the rest must change too. It's like a number or
+immutable string.
 
 Superpowers:
 
@@ -144,16 +145,17 @@ A fact is a statement about something at a certain time.
 Time is needed, because truths are contingent on time: I liked Nutella
 and ravioli. Then I stopped liking ravioli. Then one day, I liked olives.
 
-A SQL table is a bunch of facts stuck together in a rectangle: this
-chair cost 50 EUR. Its color is blue. Its tax was 18%. You have to fit
-data into rectangles. When you want to add an attribute, like size,
-you might do a painful ALTER TABLE.
+A SQL table is like a bunch of facts (but time is missing) stuck
+together in a rectangle: this chair cost 50 EUR; its color is
+blue; its tax was 18%. You have to fit data into rectangles. When you
+want to add an attribute, like size, you might do a painful ALTER
+TABLE.
 
 But you can split that up. :product/cost is one
 attribute; :product/color is another. Not everything has to have all
 the attributes. You can still do implicit joins, because a database
-entity can refer to another database entity, like a key can refer to
-another key.
+entity can refer to another database entity, like a SQL row can refer to
+a foreign key.
 
 And you can still represent these entities in
 tuples/dicts/objects. Those dicts can have other dicts as values,
@@ -219,9 +221,9 @@ over some thin pipe.
 
 The God Box processes queries, transactions, etc.
 
-Modern practice is to separate concerns/responsibilities. We write
-services. There's a read system, and a write system. They offer their
-own features.
+Modern practice is to separate concerns/responsibilities. Disentangle
+parts. We write services. There's a read system, and a write
+system. They offer their own features.
 
 In the read system, you have pluggable backend storage. Riak,
 DynamoDB, SQL database, Couchbase, Infinispan, etc. In this way you
@@ -239,7 +241,7 @@ Rant:
   schema. One Hive system had data corruption; it turned out the
   schema wasn't in synch with the data. So we generated the schema
   automatically from example data, generating strings. It was really
-  nasty and fragile; I have a strong suspicion that people who go to
+  nasty and fragile; I have a suspicion that people who go to
   the trouble of writing parsers (like SQL parsers) somehow make
   fragile languages, because it's such effort.
 
