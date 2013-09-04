@@ -22,15 +22,19 @@ What superpowers do you gain with an actual memory of past events?
 
 - Go back in time to earlier DB state.
 
+
 - If you can go back in time, you can also go forward to possivle
   futures. You can add hypothetical facts to your DB, for what-if
   calculations, which could be great for analytics.
 
+
 - You can join across different snapshots of the DB.
+
 
 - Many times people do have SQL tables which store full history of all
   changes. In my experience that's painful to work with. This is much
   faster and simpler.
+
 
 - Debug bad data more easily. Imagine doing something like git bisect,
   figuring out the exact moment something went wrong. In most systems,
@@ -38,8 +42,10 @@ What superpowers do you gain with an actual memory of past events?
   themselves. Virtually impossible to investigate, because the data's
   gone.
 
+
 - Programmers use it for themselves. Git, logs, ... But they don't
   share it with their customers.
+
 
 - When you remember transactions, you can add metadata to each
   transaction. By default, each transaction remembers the system time
@@ -94,6 +100,7 @@ Superpowers:
   Techcrunch, because you typically don't need Big Data
   solutions. This says something bad about the programming profession.
 
+
 - Useful with other NoSQL DBs. For example, your Riak reads are fast
   as possible, if Riak nodes don't need to agree on the current
   value. As long as one node has it, it's the value you're looking
@@ -117,6 +124,7 @@ Superpowers:
   have a lot of concurrency with multiple CPUs, but they're not
   stepping all over each other's data. Imagine the speed benefits of
   not needing to coordinate CPU caches.
+
 
 - "Accountants don't use erasers or they end up in jail.  When an
   entry is made in the accounting records, it will live forever.
@@ -194,6 +202,7 @@ Superpowers:
 - Freedom to ignore timeconsuming flamewars about how great something
   is, and how much the other thing sucks.
 
+
 - In worst-case network partitions, everyone still has business-case
   consistent list of transactions. An unbroken chaint of them. Though
   you may not have the most recent transactions. And you won't be able
@@ -241,6 +250,7 @@ Superpowers:
   your systems, like Lego. Rather than a painful hairball which
   becomes harder and harder to add features to over time. Composing
   things is all about growth.
+
 
 - You can build an interface for humans on a data interface. Much
   harder to build a data interface on an interface for humans.
