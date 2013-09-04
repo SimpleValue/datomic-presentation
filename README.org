@@ -243,7 +243,7 @@ Rant:
   automatically from example data, generating strings. It was really
   nasty and fragile; I have a suspicion that people who go to
   the trouble of writing parsers (like SQL parsers) somehow make
-  fragile languages, because it's such effort.
+  fragile languages, because it's extra effort.
 
 Superpowers:
 
